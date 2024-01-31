@@ -5,7 +5,6 @@ using UnityEngine;
 public class PlayerTriangle : MonoBehaviour
 {
 
-    public position
 
 
     // Start is called before the first frame update
