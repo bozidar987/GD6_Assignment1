@@ -78,7 +78,23 @@ public class Player : MonoBehaviour
             }
         }
 
+        int x = 0;
+        int y = 0;
+        for(int i =0; i < frogball.courtWidth; i++)
+        {
+            for (int j = 0; j < frogball.courtHeight; j++)
+            {
+                if(currentPosition == ballPos[i, j])
+                {
+                    x = i;
+                    y = j;
+                    i = frogball.courtWidth;
+                    j = frogball.courtHeight;
+                }
+            }
+        }
         currentPosition.SetPositionTaken(true);
+        ballPos[x,y+1].SetPositionTaken(true);
 
 
 
@@ -88,6 +104,11 @@ public class Player : MonoBehaviour
             staffUp.SetActive(true);
             staffDown.SetActive(false);
             staffPos = StaffPosition.UP;
+            if(frogball.getDirection() == Direction.UP || frogball.getDirection() == Direction.DOWN)
+            {
+                ballPos[x + 1, y].SetPositionTaken(true);
+            }
+
         }
         else if (Input.GetKey(down))
         {
@@ -95,6 +116,10 @@ public class Player : MonoBehaviour
             staffUp.SetActive(false);
             staffDown.SetActive(true);
             staffPos = StaffPosition.DOWN;
+            if (frogball.getDirection() == Direction.UP || frogball.getDirection() == Direction.DOWN)
+            {
+                ballPos[x + 1, y+1].SetPositionTaken(true);
+            }
         }
         else
         {

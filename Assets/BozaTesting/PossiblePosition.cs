@@ -3,14 +3,6 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public enum PositionType
-{
-    HORIZONTALBORDER,
-    VERTICALBORDER,
-    GOAL,
-    NORMAL
-}
-
 
 public class PossiblePosition : MonoBehaviour
 {

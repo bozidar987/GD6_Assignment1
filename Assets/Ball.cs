@@ -1,13 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public enum Direction
 {
-    UP,
-    DOWN, LEFT, RIGHT,
+    LEFT, RIGHT,
     UPLEFT, DOWNLEFT,
-    UPRIGHT, DOWNRIGHT
+    UPRIGHT, DOWNRIGHT,
+    UP, DOWN
 }
 
 public class Ball : MonoBehaviour
@@ -65,10 +66,10 @@ public class Ball : MonoBehaviour
     {
         tempPosition = currentPosition;
 
-        //if(currentPosition.x < halfCourt)
-        //{
-        //    relevantPlayer = leftPlayer;
-        //}
+        if (currentPosition.x < halfCourt)
+        {
+            relevantPlayer = leftPlayer;
+        }
         //else
         //{
         //    relevantPlayer = rightPlayer;
@@ -397,7 +398,6 @@ public class Ball : MonoBehaviour
             else
             {
                 currentPosition = tempPosition;
-                Debug.Log(tempPosition);
                 gameObject.transform.position = positions[(int)currentPosition.x,(int)currentPosition.y].transform.position;
                 moveTimer = 0;
             }
@@ -420,9 +420,14 @@ public class Ball : MonoBehaviour
             leftPlayerScore = 0;
             rightPlayerScore = 0;
         }
+        int rand = Random.Range(0, 5);
+        dir = (Direction)rand;
         currentMoveTime = moveTime;
-        moveTimer = 0;
+        moveTimer = -2;
         currentPosition = startingPosition;
         gameObject.transform.position = positions[(int)currentPosition.x,(int)currentPosition.y].transform.position;
+        Debug.Log("DIED");
     }
+
+    public Direction getDirection() { return dir; }
 }
