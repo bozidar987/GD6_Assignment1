@@ -16,6 +16,11 @@ public class Player : MonoBehaviour
     [SerializeField] float movementTime;
     float movementTimer;
 
+    //enum state { UP, DOWN, LEFT, RIGHT};
+    //state s = state.UP;
+
+    //int sw = 0;
+
     // Start is called before the first frame update
     void Start()
     {
