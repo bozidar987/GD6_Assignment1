@@ -2,9 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum StaffPosition
+{
+    NORMAL,
+    UP,
+    DOWN
+}
+
 public class Player : MonoBehaviour
 {
-    [SerializeField] PossiblePosition[] positions;
+    [SerializeField] Ball frogball;
+    [SerializeField] PossiblePosition startPosition;
     PossiblePosition currentPosition;
 
     [SerializeField] KeyCode up;
@@ -14,38 +22,90 @@ public class Player : MonoBehaviour
     [SerializeField] KeyCode action;
 
     [SerializeField] float movementTime;
+
+    GameObject staffUp;
+    GameObject staffDown;
+    GameObject staff;
     float movementTimer;
 
-    //enum state { UP, DOWN, LEFT, RIGHT};
-    //state s = state.UP;
+    StaffPosition staffPos;
 
-    //int sw = 0;
+    [SerializeField] GameObject ballPositions;
+    PossiblePosition[,] ballPos;
 
     // Start is called before the first frame update
     void Start()
     {
+        ballPos = new PossiblePosition[20,20];
+
+        int posChildCount = ballPositions.transform.childCount;
+        Vector2 temp = Vector2.zero;
+        for (int i = 0; i < posChildCount; i++)
+        {
+            if (temp.y >= frogball.courtHeight)
+            {
+                temp.y = 0;
+                temp.x += 1;
+            }
+            ballPos[(int)temp.x, (int)temp.y] = ballPositions.transform.GetChild(i).gameObject.GetComponent<PossiblePosition>();
+            temp.y += 1;
+        }
+
         currentPosition = null;
         movementTimer = 0;
-        for (int i = 0; i < positions.Length; i++)
-        {
-            if (positions[i].IsPlayerStartingPos())
-            {
-                gameObject.transform.position = positions[i].gameObject.transform.position;
-                currentPosition = positions[i];
-                break;
-            }
-        }
+
+        gameObject.transform.position = startPosition.gameObject.transform.position;
+        currentPosition = startPosition;
+
+        staff = gameObject.transform.Find("Staff").gameObject;
+        staffUp = gameObject.transform.Find("StaffUp").gameObject;
+        staffDown = gameObject.transform.Find("StaffDown").gameObject;
+
+        staff.SetActive(true);
+        staffUp.SetActive(false);
+        staffDown.SetActive(false);
+        staffPos = StaffPosition.NORMAL;
     }
 
     // Update is called once per frame
     void Update()
     {
-        //movement
-        if (Input.GetKeyDown(action))
+        for (int i = 0; i<frogball.courtWidth; i++)
         {
+            for(int j = 0;j<frogball.courtHeight; j++)
+            {
+                ballPos[i,j].SetPositionTaken(false);
+            }
+        }
 
+        currentPosition.SetPositionTaken(true);
+
+
+
+        if (Input.GetKey(up))
+        {
+            staff.SetActive(false);
+            staffUp.SetActive(true);
+            staffDown.SetActive(false);
+            staffPos = StaffPosition.UP;
+        }
+        else if (Input.GetKey(down))
+        {
+            staff.SetActive(false);
+            staffUp.SetActive(false);
+            staffDown.SetActive(true);
+            staffPos = StaffPosition.DOWN;
         }
         else
+        {
+            staff.SetActive(true);
+            staffUp.SetActive(false);
+            staffDown.SetActive(false);
+            staffPos = StaffPosition.NORMAL;
+        }
+        //movement
+
+        if (!Input.GetKey(action)) 
         {
             if (movementTimer > movementTime)
             {
@@ -53,12 +113,16 @@ public class Player : MonoBehaviour
                 if (Input.GetKey(up))
                 {
                     newPosition = currentPosition.GetUpPosition();
-                    if (newPosition != null) 
+                    if (newPosition != null)
                     {
                         gameObject.transform.position = newPosition.transform.position;
                         currentPosition = newPosition;
                         movementTimer = 0;
                     }
+                    staff.SetActive(false);
+                    staffUp.SetActive(true);
+                    staffDown.SetActive(false);
+                    staffPos = StaffPosition.UP;
                 }
                 else if (Input.GetKey(down))
                 {
@@ -69,6 +133,10 @@ public class Player : MonoBehaviour
                         currentPosition = newPosition;
                         movementTimer = 0;
                     }
+                    staff.SetActive(false);
+                    staffUp.SetActive(false);
+                    staffDown.SetActive(true);
+                    staffPos = StaffPosition.DOWN;
                 }
                 else if (Input.GetKey(left))
                 {
@@ -94,4 +162,6 @@ public class Player : MonoBehaviour
         }
         movementTimer += Time.deltaTime;
     }
+
+    public StaffPosition GetStaffPosition() { return staffPos; }
 }
