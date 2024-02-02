@@ -281,7 +281,8 @@ public class Ball : MonoBehaviour
                             }
                             else
                             {
-                                Death();
+                                dir = Direction.LEFT;
+                                reflected = true;
                             }
                         }
                         else if (dir == Direction.LEFT)

@@ -100,11 +100,30 @@ public class Player : MonoBehaviour
                 }
             }
         }
+
+        if (playerType == PlayerType.LEFT)
+        {
+            ballPos[x + 1, y].SetPositionTaken(false);
+        }
+        else
+        {
+            ballPos[x - 1, y].SetPositionTaken(false);
+        }
+
+        if (playerType == PlayerType.LEFT)
+        {
+            ballPos[x + 1, y + 1].SetPositionTaken(false);
+        }
+        else
+        {
+            ballPos[x - 1, y + 1].SetPositionTaken(false);
+        }
+
         currentPosition.SetPositionTaken(true);
         ballPos[x,y+1].SetPositionTaken(true);
 
 
-
+        
 
         if (Input.GetKey(up))
         {
