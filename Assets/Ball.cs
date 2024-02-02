@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using UnityEngine.UI;
 
 public enum Direction
 {
@@ -34,6 +35,17 @@ public class Ball : MonoBehaviour
     public int courtHeight;
     Vector2 positionsVec;
     float halfCourt;
+
+
+    [SerializeField] AudioSource moveSound;
+    [SerializeField] AudioSource scoreSound;
+    [SerializeField] AudioSource winSound;
+    [SerializeField] AudioSource reflectSound;
+    [SerializeField] Text leftPlayerScoreText;
+    [SerializeField] Text rightPlayerScoreText;
+
+    bool reflected = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -64,143 +76,138 @@ public class Ball : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        leftPlayerScoreText.text = leftPlayerScore.ToString();
+        rightPlayerScoreText.text = rightPlayerScore.ToString() ;
+
         tempPosition = currentPosition;
 
         if (currentPosition.x < halfCourt)
         {
             relevantPlayer = leftPlayer;
         }
-        //else
-        //{
-        //    relevantPlayer = rightPlayer;
-        //}
+        else
+        {
+            relevantPlayer = rightPlayer;
+        }
 
 
         if (currentMoveTime < moveTimer)
         {
             if (currentPosition.x == 0 || currentPosition.x == courtWidth - 1)
             {
-                death();
+                Death();
             }
-
-            switch (dir)
-            {
-                case Direction.UP:
-                    tempPosition.y += 1;
-                    break;
-                case Direction.DOWN:
-                    tempPosition.y -= 1;
-                    break;
-                case Direction.LEFT:
-                    tempPosition.x -= 1;
-                    break;
-                case Direction.RIGHT:
-                    tempPosition.x += 1;
-                    break;
-                case Direction.UPLEFT:
-                    tempPosition.x -= 1;
-                    tempPosition.y += 1;
-                    break;
-                case Direction.UPRIGHT:
-                    tempPosition.x += 1;
-                    tempPosition.y += 1;
-                    break;
-                case Direction.DOWNLEFT:
-                    tempPosition.x -= 1;
-                    tempPosition.y -= 1;
-                    break;
-                case Direction.DOWNRIGHT:
-                    tempPosition.x += 1;
-                    tempPosition.y -= 1;
-                    break;
-            }
-
-            if (tempPosition.x == 0 && tempPosition.y == 0)
-            {
-                dir = Direction.UPRIGHT;
-            }
-            else if (tempPosition.x == 0 && tempPosition.y == courtHeight-1)
-            {
-                dir = Direction.DOWNRIGHT;
-            }
-            else if(tempPosition.x == courtWidth-1 && tempPosition.y == 0)
-            {
-                dir = Direction.UPLEFT;
-            }
-            else if(tempPosition.x == courtWidth-1 && tempPosition.y == courtHeight-1)
-            {
-                dir = Direction.DOWNLEFT;
-            }
-            else if (tempPosition.x < 0 || tempPosition.x >= positionsVec.x ||
-                tempPosition.y < 0 || tempPosition.y >= positionsVec.y)
+            else
             {
                 switch (dir)
                 {
                     case Direction.UP:
-                        dir = Direction.DOWN;
+                        tempPosition.y += 1;
                         break;
                     case Direction.DOWN:
-                        dir = Direction.UP;
+                        tempPosition.y -= 1;
                         break;
                     case Direction.LEFT:
-                        dir = Direction.RIGHT;
+                        tempPosition.x -= 1;
                         break;
                     case Direction.RIGHT:
-                        dir = Direction.LEFT;
+                        tempPosition.x += 1;
                         break;
                     case Direction.UPLEFT:
-                        if(tempPosition.x == 0)
-                        {
-                            if (tempPosition.y <= 0)
-                            {
-                                dir = Direction.DOWNRIGHT;
-                            }
-                        }
-                        else if(tempPosition.y >= positionsVec.y)
-                        {
-                            dir = Direction.DOWNLEFT;
-                        }
+                        tempPosition.x -= 1;
+                        tempPosition.y += 1;
                         break;
                     case Direction.UPRIGHT:
-                        if (tempPosition.x >= positionsVec.x)
-                        {
-                            if (tempPosition.y >= positionsVec.y)
+                        tempPosition.x += 1;
+                        tempPosition.y += 1;
+                        break;
+                    case Direction.DOWNLEFT:
+                        tempPosition.x -= 1;
+                        tempPosition.y -= 1;
+                        break;
+                    case Direction.DOWNRIGHT:
+                        tempPosition.x += 1;
+                        tempPosition.y -= 1;
+                        break;
+                }
+
+                if (tempPosition.x == 0 && tempPosition.y == 0)
+                {
+                    dir = Direction.UPRIGHT;
+                }
+                else if (tempPosition.x == 0 && tempPosition.y == courtHeight - 1)
+                {
+                    dir = Direction.DOWNRIGHT;
+                }
+                else if (tempPosition.x == courtWidth - 1 && tempPosition.y == 0)
+                {
+                    dir = Direction.UPLEFT;
+                }
+                else if (tempPosition.x == courtWidth - 1 && tempPosition.y == courtHeight - 1)
+                {
+                    dir = Direction.DOWNLEFT;
+                }
+                else if (tempPosition.x < 0 || tempPosition.x >= positionsVec.x ||
+                    tempPosition.y < 0 || tempPosition.y >= positionsVec.y)
+                {
+                    switch (dir)
+                    {
+                        case Direction.UP:
+                            dir = Direction.DOWN;
+                            break;
+                        case Direction.DOWN:
+                            dir = Direction.UP;
+                            break;
+                        case Direction.LEFT:
+                            dir = Direction.RIGHT;
+                            break;
+                        case Direction.RIGHT:
+                            dir = Direction.LEFT;
+                            break;
+                        case Direction.UPLEFT:
+                            if (tempPosition.x == 0 && tempPosition.y <= 0)
+                            {
+                                    dir = Direction.DOWNRIGHT;
+                            }
+                            else if (tempPosition.y >= positionsVec.y)
                             {
                                 dir = Direction.DOWNLEFT;
                             }
-                        }
-                        else if (tempPosition.y >= positionsVec.y)
-                        {
-                            dir = Direction.DOWNRIGHT;
-                        }
-                        break;
-                    case Direction.DOWNLEFT:
-                         dir = Direction.UPLEFT;
-                        break;
-                    case Direction.DOWNRIGHT:
-                        if (tempPosition.x >= positionsVec.x)
-                        {
-                            if (tempPosition.y <= 0)
+                            break;
+                        case Direction.UPRIGHT:
+                            if (tempPosition.x >= positionsVec.x && tempPosition.y >= positionsVec.y)
                             {
-                                dir = Direction.UPLEFT;
+                                    dir = Direction.DOWNLEFT;
+                      
                             }
-                        }
-                        else if (tempPosition.y <= 0)
-                        {
-                            dir = Direction.UPRIGHT;
-                        }
-                        break;
+                            else if (tempPosition.y >= positionsVec.y)
+                            {
+                                dir = Direction.DOWNRIGHT;
+                            }
+                            break;
+                        case Direction.DOWNLEFT:
+                            dir = Direction.UPLEFT;
+                            break;
+                        case Direction.DOWNRIGHT:
+                            if (tempPosition.x >= positionsVec.x&& tempPosition.y <= 0)
+                            {
+                                    dir = Direction.UPLEFT;
+                            }
+                            else if (tempPosition.y <= 0)
+                            {
+                                dir = Direction.UPRIGHT;
+                            }
+                            break;
+                    }
                 }
-            }
-            else if (positions[(int)tempPosition.x,(int)tempPosition.y].GetComponent<PossiblePosition>() != null &&
-                positions[(int)tempPosition.x, (int)tempPosition.y].GetComponent<PossiblePosition>().GetPositionTaken())
-            {
-             
+                else if (positions[(int)tempPosition.x, (int)tempPosition.y].GetComponent<PossiblePosition>() != null &&
+                    positions[(int)tempPosition.x, (int)tempPosition.y].GetComponent<PossiblePosition>().GetPositionTaken())
+                {
                     if (relevantPlayer.GetComponent<Player>().GetStaffPosition() == StaffPosition.UP)
                     {
                         if (dir == Direction.DOWN)
                         {
-                            if(tempPosition.x < halfCourt)
+                            if (tempPosition.x < halfCourt)
                             {
                                 dir = Direction.RIGHT;
                             }
@@ -208,38 +215,42 @@ public class Ball : MonoBehaviour
                             {
                                 dir = Direction.LEFT;
                             }
+                            reflected = true;
                         }
                         else if (dir == Direction.LEFT)
                         {
                             if (tempPosition.x < halfCourt)
                             {
                                 dir = Direction.UP;
+                                reflected = true;
                             }
                             else
                             {
-                                death();
+                                Death();
                             }
                         }
                         else if (dir == Direction.RIGHT)
                         {
-                            if (tempPosition.x<halfCourt)
+                            if (tempPosition.x < halfCourt)
                             {
-                                death();
+                                //Death();
                             }
                             else
                             {
                                 dir = Direction.UP;
+                                reflected = true;
                             }
                         }
                         else if (dir == Direction.DOWNRIGHT)
                         {
                             if (tempPosition.x < halfCourt)
                             {
-                                death();
+                                //Death();
                             }
                             else
                             {
                                 dir = Direction.UPLEFT;
+                                reflected = true;
                             }
                         }
                         else if (dir == Direction.DOWNLEFT)
@@ -247,15 +258,16 @@ public class Ball : MonoBehaviour
                             if (tempPosition.x < halfCourt)
                             {
                                 dir = Direction.UPRIGHT;
+                                reflected = true;
                             }
                             else
                             {
-                                death();
+                                //Death();
                             }
                         }
                         else
                         {
-                            death();
+                            Death();
                         }
                     }
                     else if (relevantPlayer.GetComponent<Player>().GetStaffPosition() == StaffPosition.DOWN)
@@ -265,10 +277,11 @@ public class Ball : MonoBehaviour
                             if (tempPosition.x < halfCourt)
                             {
                                 dir = Direction.RIGHT;
+                                reflected = true;
                             }
                             else
                             {
-                                death();
+                                Death();
                             }
                         }
                         else if (dir == Direction.LEFT)
@@ -276,32 +289,35 @@ public class Ball : MonoBehaviour
                             if (tempPosition.x < halfCourt)
                             {
                                 dir = Direction.DOWN;
+                                reflected = true;
                             }
                             else
                             {
-                                death();
+                                Death();
                             }
                         }
                         else if (dir == Direction.RIGHT)
                         {
                             if (tempPosition.x < halfCourt)
                             {
-                                death();
+                                Death();
                             }
                             else
                             {
                                 dir = Direction.DOWN;
+                                reflected = true;
                             }
                         }
                         else if (dir == Direction.UPRIGHT)
                         {
                             if (tempPosition.x < halfCourt)
                             {
-                                death();
+                                Death();
                             }
                             else
                             {
                                 dir = Direction.DOWNLEFT;
+                                reflected = true;
                             }
                         }
                         else if (dir == Direction.DOWNLEFT)
@@ -309,15 +325,16 @@ public class Ball : MonoBehaviour
                             if (tempPosition.x < halfCourt)
                             {
                                 dir = Direction.UPRIGHT;
+                                reflected = true;
                             }
                             else
                             {
-                                death();
+                                Death();
                             }
                         }
                         else
                         {
-                            death();
+                            Death();
                         }
                     }
                     else
@@ -327,32 +344,35 @@ public class Ball : MonoBehaviour
                             if (tempPosition.x < halfCourt)
                             {
                                 dir = Direction.RIGHT;
+                                reflected = true;
                             }
                             else
                             {
-                                death();
+                                Death();
                             }
                         }
                         else if (dir == Direction.RIGHT)
                         {
                             if (tempPosition.x < halfCourt)
                             {
-                                death();
+                                Death();
                             }
                             else
                             {
                                 dir = Direction.LEFT;
+                                reflected = true;
                             }
                         }
                         else if (dir == Direction.UPRIGHT)
                         {
                             if (tempPosition.x < halfCourt)
                             {
-                                death();
+                                Death();
                             }
                             else
                             {
                                 dir = Direction.DOWNLEFT;
+                                reflected = true;
                             }
                         }
                         else if (dir == Direction.UPLEFT)
@@ -360,10 +380,11 @@ public class Ball : MonoBehaviour
                             if (tempPosition.x < halfCourt)
                             {
                                 dir = Direction.UPRIGHT;
+                                reflected = true;
                             }
                             else
                             {
-                                death();
+                                Death();
                             }
                         }
                         else if (dir == Direction.DOWNLEFT)
@@ -371,61 +392,88 @@ public class Ball : MonoBehaviour
                             if (tempPosition.x < halfCourt)
                             {
                                 dir = Direction.DOWNRIGHT;
+                                reflected = true;
                             }
                             else
                             {
-                                death();
+                                Death();
                             }
                         }
                         else if (dir == Direction.DOWNRIGHT)
                         {
                             if (tempPosition.x < halfCourt)
                             {
-                                death();
+                                Death();
                             }
                             else
                             {
                                 dir = Direction.DOWNLEFT;
+                                reflected = true;
                             }
                         }
                         else
                         {
-                            death();
+                            Death();
                         }
                     }
-                
-            }
-            else
-            {
-                currentPosition = tempPosition;
-                gameObject.transform.position = positions[(int)currentPosition.x,(int)currentPosition.y].transform.position;
-                moveTimer = 0;
+                }
+                else
+                {
+                    positions[(int)currentPosition.x, (int)currentPosition.y].GetComponent<PossiblePosition>().ballBlocked = false;
+                    if(currentPosition.y > 0)
+                    {
+                        positions[(int)currentPosition.x, (int)currentPosition.y-1].GetComponent<PossiblePosition>().ballBlocked = false;
+                    }
+                    currentPosition = tempPosition;
+                    positions[(int)currentPosition.x, (int)currentPosition.y].GetComponent<PossiblePosition>().ballBlocked = true;
+                    if (currentPosition.y > 0)
+                    {
+                        positions[(int)currentPosition.x, (int)currentPosition.y - 1].GetComponent<PossiblePosition>().ballBlocked = true;
+                    }
+                    gameObject.transform.position = positions[(int)currentPosition.x, (int)currentPosition.y].transform.position;
+                    moveTimer = 0;
+                    if (reflected)
+                    {
+                        reflectSound.Play();
+                    }
+                    else
+                    {
+                        moveSound.Play();
+                    }
+                    reflected = false;
+                }
             }
         }
         moveTimer += Time.deltaTime;
     }
 
-    private void death()
+    private void Death()
     {
-        if(currentPosition.x < halfCourt)
+        if (currentPosition.x < halfCourt)
         {
             leftPlayerScore++;
+            scoreSound.Play();
         }
         else
         {
             rightPlayerScore++;
+            scoreSound.Play();
         }
-        if(leftPlayerScore > 4 || rightPlayerScore > 4)
+        if (leftPlayerScore > 4 || rightPlayerScore > 4)
         {
             leftPlayerScore = 0;
             rightPlayerScore = 0;
+            winSound.Play();
         }
+
         int rand = Random.Range(0, 5);
         dir = (Direction)rand;
         currentMoveTime = moveTime;
         moveTimer = -2;
+        Debug.Log("check1");
         currentPosition = startingPosition;
-        gameObject.transform.position = positions[(int)currentPosition.x,(int)currentPosition.y].transform.position;
+        Debug.Log("check2");
+        this.gameObject.transform.position = positions[(int)currentPosition.x,(int)currentPosition.y].transform.position;
         Debug.Log("DIED");
     }
 

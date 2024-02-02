@@ -7,6 +7,7 @@ using UnityEngine;
 public class PossiblePosition : MonoBehaviour
 {
     bool positionTaken = false;
+    public bool ballBlocked = false;
     [SerializeField] PossiblePosition leftPosition;
     [SerializeField] PossiblePosition rightPosition;
     [SerializeField] PossiblePosition upPosition;
